@@ -1,0 +1,65 @@
+Dim olApp As Object
+Dim olNS as Object
+Dim olFolder as Object
+Dim olApt as Object
+Dim oAppointments as Object
+Dim FolderItems as Outlook.Items
+
+Dim NextRow as Long
+Dim FromDate as Date
+Dim toDate as Date
+Dim pos as Integer
+
+Application.screenupdating = False
+Application.cutcopymode = False
+
+FromDate = CDate("10/04/2020") 'Hardcoded for now
+ToDate = CDate ("10/09/2020")' long term these date references will be user set via inputs
+
+On error Resume Next
+
+Set olApp = Get Object(, "Outlook.Application")
+
+If Err.Number > 0 Then Set olApp = CreateObject("Outlook.application")
+On Error GoTo O
+
+Set olNS = olApp.getnamespace("MAPI")
+SetolFolder = olNS.GetDefaultFolder(9)
+Next Row =2
+
+With olFolder.Items
+    .sort"[Start]", True
+    .IncludeRecurrences=True
+End With
+
+With Sheets("Sheet1")
+   .range("A1:H1").value = Array("Subject","Date","Time Spent", "Location", "Required Attendees", "Optional Attendees", "Categorization", "Body")
+
+
+For Each olApt InolFolder.items
+
+If (olApt.Start)>= FromDate And olApt.start <= ToDate) Then
+
+    .cells(Nextrow,"A").Value= olApt.subject
+    .cells(Nextrow,"B").Value=CDate(olApt,Start)
+    .cells(Nextrow,"C").Value= olApt.End-olApp.Start
+    .cells(Nextrow,"C").NumberFormat = "HH:MM:SS"
+    .cells(Nextrow,"D").Value= olapt.Location
+    .cells(Nextrow,"E").Value= olapt.requiredAttendees
+    .cells(Nextrow,"F").Value= olapt.optionalAttendees
+    .cells(Nextrow,"G").Value= olapt.Categories
+    .cells(Nextrow,"H").Value= olapt.Body
+
+        Else
+    End IF
+Next olApt
+
+End With
+
+Set olApt = Nothing
+Set olFolder = Nothing
+Set olNS = Nothing
+Set olApp = Nothing
+
+Application.ScreenUpdating = True
+Application.CutCopyMode = True
